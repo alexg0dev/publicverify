@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord Verification</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen font-roboto">
+  <div class="container max-w-md bg-white rounded-lg shadow-lg p-8 text-center">
+    <h1 class="text-2xl font-bold text-blue-600 mb-4">Discord Verification</h1>
+    <p class="text-gray-600 mb-6">Click the button below to verify your IP address for server access.</p>
+    <button id="verify-button" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 transition">
+      Verify Now
+    </button>
+    <p id="status-message" class="mt-4 text-gray-500"></p>
+    <footer class="mt-8 text-xs text-gray-400">Powered by <span class="font-bold text-blue-500">fetchjson | Dev</span></footer>
+  </div>
+
+  <script>
+    document.getElementById('verify-button').addEventListener('click', async () => {
+      const statusMessage = document.getElementById('status-message');
+      statusMessage.textContent = "Verifying...";
+
+      try {
+        // Fetch the user's IP address details from IPinfo using the provided token
+        const ipResponse = await fetch('https://ipinfo.io/json?token=64ccb423141df9');
+        const ipData = await ipResponse.json();
+
+        // Send IP details to the bot server (adjust the URL to match your server endpoint)
+        const response = await fetch('http://localhost:3000/verify-ip', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ip: ipData.ip, info: ipData })
+        });
+
+        if (response.ok) {
+          statusMessage.textContent = "Verification sent successfully!";
+        } else {
+          statusMessage.textContent = "Verification failed. Please try again.";
+        }
+      } catch (error) {
+        console.error('Verification error:', error);
+        statusMessage.textContent = "An error occurred. Please try again later.";
+      }
+    });
+  </script>
+</body>
+</html>
